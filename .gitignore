@@ -1,0 +1,6 @@
+geckodriver.log
+hackerone.sublime-workspace
+hackerone/__pycache__/
+hackerone/geckodriver.log
+hackerone/ghostdriver.log
+hackerone/spiders/__pycache__/
