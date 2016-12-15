@@ -9,12 +9,10 @@ import scrapy
 
 
 class HackeroneItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+    # Contains the list of fields which will be extracted from bug disclosure report
     hid = scrapy.Field()
     reward = scrapy.Field()
     vuln_type = scrapy.Field()
     severity = scrapy.Field()
     submission_date = scrapy.Field()
     resolved_date = scrapy.Field()
-    #pass
