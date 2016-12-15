@@ -14,7 +14,6 @@ def db_connect():
     return create_engine(URL(**settings.DATABASE))
 
 def create_deals_table(engine):
-    """"""
     DeclarativeBase.metadata.create_all(engine)
 
 class Deals(DeclarativeBase):
@@ -28,6 +27,3 @@ class Deals(DeclarativeBase):
     severity = Column('severity', String)
     submission_date = Column('submission_date', DateTime)
     resolved_date = Column('resolved_date', DateTime)
-    #link = Column('link', String, nullable=True)
-    #location = Column('location', String, nullable=True)
-    #time = Column('time', DateTime, nullable=True)

@@ -4,7 +4,6 @@ from selenium import webdriver
 from scrapy.selector import Selector
 from hackerone.items import HackeroneItem
 
-TAG = "test: "
 class ReportSpider(scrapy.Spider):
   name = "reports"
   start_urls = [
@@ -18,15 +17,15 @@ class ReportSpider(scrapy.Spider):
   def parse(self, response):
     report_urls = response.xpath('//tbody/tr/td[3]/a/@href').extract()
     item = HackeroneItem()
-    for report_url in report_urls[1:10]:
+    for report_url in report_urls[1:]:
       self.driver.get(report_url)
+      #Sleep for few moments so that webpage gets loaded properly otherwise content won't come up
       time.sleep(2)
-      #print(self.driver.page_source)
       self.report_selector = Selector(text = self.driver.page_source)
       item = self.parseReport()
-      yield item
-      #break
-      #yield scrapy.Request(report_url, callback=self.parseReport)
+      if item != None:
+        yield item
+    #Everything is over and browser whould be quit
     self.driver.quit()
 
   def parseReport(self):
@@ -34,23 +33,15 @@ class ReportSpider(scrapy.Spider):
     print("Report called")
     #Check whether report is duplicate
     if self.report_selector.xpath('//i[contains(@class, "duplicate")]').extract_first() != None:
-      print("Duplicate is not None")
+      self.log("Found a duplicate report")
       return None
 
     hid = self.get_hid()
-    print("hid: " + hid)
     reward = self.get_reward()
     submission_date = self.get_submission_date()
     ending_date = self.get_end_date()
     vuln_type = self.get_vuln_type()
     severity = self.get_severity()
-
-    print(submission_date)
-    print(ending_date)
-    print("vuln_type: " + vuln_type)
-    print("severity: " + severity)
-    print("hid: " + hid)
-    print("reward: " + str(reward))
 
     item = HackeroneItem()
     item['hid'] = hid
@@ -77,7 +68,6 @@ class ReportSpider(scrapy.Spider):
 
   def get_submission_date(self):
     submission_date = self.report_selector.xpath("//span[contains(@class,'spec-timestamp')]/span/@title").extract_first()
-    #submission_date = time.strptime(submission_date, "%B %d, %Y %X")
     return submission_date
 
   def get_end_date(self):
@@ -85,8 +75,6 @@ class ReportSpider(scrapy.Spider):
     if ending_date == None:
       ending_date = self.report_selector.xpath("//div[contains(@data-activity, 'BugInformative')]/div[4]/div/span/@title").extract_first()
       #TODO Construct better way to find reasons for non-existant end_date
-
-    #ending_date = time.strptime(ending_date, "%B %d, %Y %X")
     return ending_date
 
   def get_vuln_type(self):
